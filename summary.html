@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Booking Summary</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <section class="summary-section">
+    <h2>Booking Summary</h2>
+    <div id="summary-details"></div>
+    <button onclick="window.location.href='index.html'">Back to Home</button>
+  </section>
+
+  <script>
+    const data = JSON.parse(localStorage.getItem('bookingData'));
+    const container = document.getElementById('summary-details');
+
+    if (data) {
+      container.innerHTML = `
+        <p><strong>Name:</strong> ${data.name}</p>
+        <p><strong>Email:</strong> ${data.email}</p>
+        <p><strong>Phone:</strong> ${data.phone}</p>
+        <p><strong>Date:</strong> ${data.date}</p>
+        <p><strong>Ferry:</strong> ${data.ferry}</p>
+        <p><strong>Passengers:</strong> ${data.passengers}</p>
+      `;
+    } else {
+      container.innerHTML = "<p>No booking data found. Please book first.</p>";
+    }
+  </script>
+</body>
+</html>

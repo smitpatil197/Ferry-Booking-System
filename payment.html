@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Fake Payment Gateway</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      background-color: #1e2251;
+      font-family: 'Poppins', sans-serif;
+      color: white;
+    }
+
+    .payment-wrapper {
+      max-width: 500px;
+      margin: 60px auto;
+      background-color: #0c1730;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.4);
+    }
+
+    .payment-wrapper h2 {
+      margin-bottom: 20px;
+      font-weight: 600;
+    }
+
+    label {
+      margin-top: 10px;
+      margin-bottom: 5px;
+    }
+
+    input, select {
+      background-color: #1c2a4d;
+      border: 1px solid #f9b233;
+      color: white;
+    }
+
+    .form-control:focus {
+      border-color: #f9b233;
+      box-shadow: 0 0 0 0.2rem rgba(249, 178, 51, 0.25);
+    }
+
+    .btn-pay {
+      background-color: #f9b233;
+      border: none;
+      color: black;
+      font-weight: bold;
+    }
+
+    .btn-pay:hover {
+      background-color: #ffcd60;
+    }
+
+    .alt-methods {
+      margin-top: 30px;
+    }
+
+    .alt-button {
+      background-color: #15203b;
+      border: none;
+      color: white;
+      padding: 12px;
+      margin-bottom: 10px;
+      text-align: left;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .alt-button:hover {
+      background-color: #1e2a4d;
+    }
+
+    .alt-button img {
+      width: 24px;
+      margin-right: 10px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="payment-wrapper">
+    <h2>Payment Details</h2>
+    <form id="payment-form">
+      <label for="cardNumber">Card number</label>
+      <input type="text" id="cardNumber" placeholder="1234 5678 9012 3456" maxlength="19" required>
+
+      <div class="row">
+        <div class="col">
+          <label for="expiry">Expiration date</label>
+          <input type="text" class="form-control" id="expiry" placeholder="MM/YY" maxlength="5" required>
+        </div>
+        <div class="col">
+          <label for="cvv">Security code</label>
+          <input type="password" class="form-control" id="cvv" placeholder="CVC" required>
+        </div>
+      </div>
+
+      <label for="country">Country</label>
+      <select id="country" class="form-control" required>
+        <option value="India">India</option>
+        <option value="USA">United States</option>
+        <option value="UK">United Kingdom</option>
+        <option value="AU">Australia</option>
+      </select>
+
+      <button type="submit" class="btn btn-pay w-100 mt-4">Pay Now</button>
+    </form>
+
+    <div class="alt-methods">
+      <button class="alt-button"><span>💲 Afterpay</span> →</button>
+      <button class="alt-button"><span>🅺 Klarna</span> →</button>
+      <button class="alt-button"><span>💲 Cash App Pay</span> →</button>
+      <button class="alt-button"><span>🅐 Affirm</span> →</button>
+      <button class="alt-button"><span>⋯ More</span> →</button>
+    </div>
+  </div>
+
+       <!-- Receipt section (hidden initially) -->
+    <!-- Receipt section -->
+  <div id="receipt" style="display: none; margin-top: 20px;">
+  <h3>✅ Payment Successful!</h3>
+  <p><strong>Card:</strong> <span id="rCard"></span></p>
+  <p><strong>Expiry:</strong> <span id="rExpiry"></span></p>
+  <p><strong>Country:</strong> <span id="rCountry"></span></p>
+  <p><strong>Payment ID:</strong> <span id="rPaymentId"></span></p>
+
+  <button onclick="downloadReceipt()">📥 Download Receipt</button>
+</div>
+
+
+<script>
+  // Format expiry input
+  const expiryInput = document.getElementById('expiry');
+  expiryInput.addEventListener('input', (e) => {
+    let input = e.target.value.replace(/\D/g, '');
+    if (input.length > 4) input = input.slice(0, 4);
+    if (input.length >= 3) {
+      e.target.value = input.slice(0, 2) + '/' + input.slice(2);
+    } else {
+      e.target.value = input;
+    }
+  });
+
+  // Format card number
+  const cardNumberInput = document.getElementById('cardNumber');
+  cardNumberInput.addEventListener('input', (e) => {
+    let input = e.target.value.replace(/\D/g, '');
+    if (input.length > 16) input = input.slice(0, 16);
+    e.target.value = input.match(/.{1,4}/g)?.join(' ') || '';
+  });
+
+  // Handle form submission
+  document.getElementById('payment-form').addEventListener('submit', function (e) {
+    e.preventDefault();
+
+    const card = document.getElementById('cardNumber').value;
+    const expiry = document.getElementById('expiry').value;
+    const country = document.getElementById('country').value;
+    const paymentId = 'TXN' + Math.floor(Math.random() * 1000000000);
+
+    document.getElementById('rCard').textContent = card;
+    document.getElementById('rExpiry').textContent = expiry;
+    document.getElementById('rCountry').textContent = country;
+    document.getElementById('rPaymentId').textContent = paymentId;
+
+    this.style.display = 'none';
+    document.getElementById('receipt').style.display = 'block';
+  });
+
+  // Download receipt as text file
+  function downloadReceipt() {
+    const card = document.getElementById('rCard').textContent;
+    const expiry = document.getElementById('rExpiry').textContent;
+    const country = document.getElementById('rCountry').textContent;
+    const paymentId = document.getElementById('rPaymentId').textContent;
+
+    const receiptText = `
+Payment Receipt
+----------------------
+Payment ID: ${paymentId}
+Card Number: ${card}
+Expiry Date: ${expiry}
+Country: ${country}
+Date: ${new Date().toLocaleString()}
+`;
+
+    const blob = new Blob([receiptText], { type: 'text/plain' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `Receipt_${paymentId}.txt`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
+</script>
+
+
+
+
+</body>
+</html>
